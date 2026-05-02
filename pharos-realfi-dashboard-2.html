@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharos RealFi Intelligence — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a12;
+    --surface: #0b1420;
+    --surface2: #0f1d2e;
+    --border: #1a2d45;
+    --border-glow: #1e4a7a;
+    --accent: #00c8ff;
+    --accent2: #00ffb3;
+    --accent3: #ff6b35;
+    --gold: #f5c842;
+    --text: #e8f4ff;
+    --muted: #5a7a99;
+    --danger: #ff3d6b;
+    --success: #00ffb3;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,200,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,255,179,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 30% at 60% 30%, rgba(245,200,66,0.03) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 0 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 16px rgba(0,200,255,0.3);
+    background: rgba(0,200,255,0.07);
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 16px rgba(0,200,255,0.3); }
+    50% { box-shadow: 0 0 28px rgba(0,200,255,0.55), 0 0 50px rgba(0,200,255,0.15); }
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(0,255,179,0.08);
+    border: 1px solid rgba(0,255,179,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--accent2);
+    letter-spacing: 1px;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .network-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── WALLET BAR ── */
+  .wallet-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .wallet-addr {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(0,200,255,0.07);
+    border: 1px solid rgba(0,200,255,0.2);
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .wallet-addr:hover { background: rgba(0,200,255,0.14); }
+
+  .wallet-label { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+
+  .tab-row {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .tab {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab.active {
+    background: rgba(0,200,255,0.12);
+    border-color: rgba(0,200,255,0.3);
+    color: var(--accent);
+  }
+
+  .tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.04); }
+
+  /* ── TOP STATS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+    cursor: default;
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .stat-card.cyan::before { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+  .stat-card.green::before { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
+  .stat-card.gold::before { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .stat-card.orange::before { background: linear-gradient(90deg, transparent, var(--accent3), transparent); }
+  .stat-card.red::before { background: linear-gradient(90deg, transparent, var(--danger), transparent); }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-value.cyan { color: var(--accent); }
+  .stat-value.green { color: var(--accent2); }
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.orange { color: var(--accent3); }
+
+  .stat-change {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-change.up { color: var(--accent2); }
+  .stat-change.down { color: var(--danger); }
+
+  /* ── MAIN GRID ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title span { color: var(--accent); }
+
+  .panel-action {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    cursor: pointer;
+    opacity: 0.7;
+  }
+
+  .panel-action:hover { opacity: 1; }
+
+  /* ── SPARKLINE CHART ── */
+  .chart-area {
+    height: 200px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .chart-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    padding-top: 6px;
+  }
+
+  /* ── RWA HOLDINGS TABLE ── */
+  .holdings-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .holdings-table th {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    text-align: left;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .holdings-table th:last-child, .holdings-table td:last-child { text-align: right; }
+
+  .holdings-table td {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(26,45,69,0.5);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .holdings-table tr:last-child td { border-bottom: none; }
+
+  .asset-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .asset-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .asset-name { font-weight: 600; font-size: 13px; line-height: 1.2; }
+  .asset-ticker { font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+
+  .yield-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+
+  .yield-pill.high { background: rgba(0,255,179,0.1); color: var(--accent2); border: 1px solid rgba(0,255,179,0.2); }
+  .yield-pill.mid { background: rgba(0,200,255,0.1); color: var(--accent); border: 1px solid rgba(0,200,255,0.2); }
+  .yield-pill.low { background: rgba(245,200,66,0.1); color: var(--gold); border: 1px solid rgba(245,200,66,0.2); }
+
+  .change-val { font-family: var(--font-mono); font-size: 12px; }
+  .change-val.up { color: var(--accent2); }
+  .change-val.down { color: var(--danger); }
+
+  /* ── ALLOCATION DONUT ── */
+  .donut-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .donut-svg { width: 180px; height: 180px; }
+
+  .donut-center-text {
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .donut-legend {
+    width: 100%;
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .legend-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-name { color: var(--text); }
+  .legend-pct { font-family: var(--font-mono); color: var(--muted); font-size: 11px; }
+
+  /* ── BOTTOM GRID ── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ── ACTIVITY FEED ── */
+  .activity-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .activity-body { flex: 1; min-width: 0; }
+
+  .activity-desc {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .activity-desc strong { color: var(--accent); font-weight: 600; }
+
+  .activity-time {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* ── SPN HEALTH ── */
+  .spn-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .spn-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .spn-left { display: flex; flex-direction: column; gap: 2px; }
+  .spn-name { font-size: 12px; font-weight: 600; }
+  .spn-type { font-size: 10px; font-family: var(--font-mono); color: var(--muted); }
+
+  .spn-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    min-width: 100px;
+  }
+
+  .spn-pct { font-size: 11px; font-family: var(--font-mono); color: var(--accent2); }
+
+  .spn-bar {
+    width: 100px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .spn-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  /* ── YIELD OPPORTUNITIES ── */
+  .opportunity-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .opp-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .opp-card:hover {
+    border-color: var(--border-glow);
+    transform: translateX(2px);
+  }
+
+  .opp-emoji { font-size: 20px; }
+
+  .opp-body { flex: 1; min-width: 0; }
+  .opp-name { font-size: 12px; font-weight: 700; }
+  .opp-protocol { font-size: 10px; font-family: var(--font-mono); color: var(--muted); }
+
+  .opp-apy {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--accent2);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .opp-apy small {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--muted);
+    display: block;
+    text-align: right;
+  }
+
+  /* ── NETWORK METRICS ── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .metric-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .metric-label {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .metric-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .metric-val.accent { color: var(--accent); }
+  .metric-val.green { color: var(--accent2); }
+
+  /* ── PROS STAKING ── */
+  .staking-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .staking-ring {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .stake-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .stake-item { display: flex; flex-direction: column; gap: 2px; }
+  .stake-key { font-size: 10px; font-family: var(--font-mono); color: var(--muted); }
+  .stake-val { font-size: 15px; font-weight: 700; }
+  .stake-val.cyan { color: var(--accent); }
+  .stake-val.green { color: var(--accent2); }
+  .stake-val.gold { color: var(--gold); }
+
+  .stake-btn {
+    background: linear-gradient(135deg, rgba(0,200,255,0.15), rgba(0,255,179,0.1));
+    border: 1px solid rgba(0,200,255,0.4);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .stake-btn:hover {
+    background: linear-gradient(135deg, rgba(0,200,255,0.25), rgba(0,255,179,0.18));
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0,200,255,0.2);
+  }
+
+  /* ── ANIMATE IN ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stats-row { animation: fadeUp 0.5s ease both; }
+  .main-grid { animation: fadeUp 0.5s 0.1s ease both; }
+  .bottom-grid { animation: fadeUp 0.5s 0.2s ease both; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .main-grid { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 700px) {
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .tab-row { margin-left: 0; }
+    .wallet-bar { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo-icon">⚓</div>
+      <div class="logo-text">
+        <span class="logo-title">Pharos RealFi Intelligence</span>
+        <span class="logo-sub">Portfolio &amp; Ecosystem Dashboard</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        MAINNET LIVE
+      </div>
+      <div class="network-tag">PACIFIC OCEAN v1.0</div>
+    </div>
+  </header>
+
+  <!-- WALLET BAR -->
+  <div class="wallet-bar">
+    <span class="wallet-label">CONNECTED:</span>
+    <div class="wallet-addr">0x3a9F…d84C</div>
+    <div class="tab-row">
+      <div class="tab active">Portfolio</div>
+      <div class="tab">Analytics</div>
+      <div class="tab">RWA Market</div>
+      <div class="tab">Governance</div>
+    </div>
+  </div>
+
+  <!-- TOP STATS -->
+  <div class="stats-row">
+    <div class="stat-card cyan">
+      <div class="stat-label">Total Portfolio Value</div>
+      <div class="stat-value cyan">$84,392</div>
+      <div class="stat-change up">▲ +$1,842 (2.23%) 24h</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Claimable Yield</div>
+      <div class="stat-value green">$1,247</div>
+      <div class="stat-change up">▲ Accruing at 14.2% APY</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-label">PROS Staked</div>
+      <div class="stat-value gold">42,500</div>
+      <div class="stat-change up">▲ 5% annual inflation</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">RWA Exposure</div>
+      <div class="stat-value orange">68.4%</div>
+      <div class="stat-change up">▲ T-Bills, Credit, RE</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Network TPS</div>
+      <div class="stat-value cyan">31,204</div>
+      <div class="stat-change up">▲ DP4 — All SPNs Healthy</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: Holdings + Chart -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Portfolio Chart -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📈 <span>Portfolio</span> Performance — 30D</div>
+          <div class="panel-action">View All →</div>
+        </div>
+        <div class="chart-area">
+          <svg class="chart-svg" viewBox="0 0 700 200" preserveAspectRatio="none" id="chart-svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00c8ff" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="lineGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00ffb3" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#00ffb3" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <line x1="0" y1="50" x2="700" y2="50" stroke="#1a2d45" stroke-width="1"/>
+            <line x1="0" y1="100" x2="700" y2="100" stroke="#1a2d45" stroke-width="1"/>
+            <line x1="0" y1="150" x2="700" y2="150" stroke="#1a2d45" stroke-width="1"/>
+            <!-- Portfolio fill area -->
+            <path id="areaPath" d="" fill="url(#lineGrad)" opacity="0.8"/>
+            <!-- Yield fill area -->
+            <path id="yieldArea" d="" fill="url(#lineGrad2)" opacity="0.7"/>
+            <!-- Portfolio line -->
+            <path id="linePath" d="" fill="none" stroke="#00c8ff" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Yield line -->
+            <path id="yieldPath" d="" fill="none" stroke="#00ffb3" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="4 3"/>
+          </svg>
+        </div>
+        <div class="chart-labels">
+          <span>Apr 2</span><span>Apr 7</span><span>Apr 12</span><span>Apr 17</span>
+          <span>Apr 22</span><span>Apr 27</span><span>May 2</span>
+        </div>
+      </div>
+
+      <!-- RWA Holdings Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🏦 <span>RWA</span> Holdings</div>
+          <div class="panel-action">Manage →</div>
+        </div>
+        <table class="holdings-table">
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>Balance</th>
+              <th>Value</th>
+              <th>APY</th>
+              <th>24h Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="asset-cell">
+                  <div class="asset-icon" style="background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);">🏛️</div>
+                  <div>
+                    <div class="asset-name">JTRSY</div>
+                    <div class="asset-ticker">Centrifuge · U.S. Treasuries</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-family:var(--font-mono);font-size:12px;">24,800 JTRSY</td>
+              <td style="font-weight:700;">$24,847</td>
+              <td><span class="yield-pill mid">5.12%</span></td>
+              <td><span class="change-val up">▲ +0.04%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="asset-cell">
+                  <div class="asset-icon" style="background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.25);">📄</div>
+                  <div>
+                    <div class="asset-name">JAAA</div>
+                    <div class="asset-ticker">Centrifuge · AAA Credit</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-family:var(--font-mono);font-size:12px;">18,200 JAAA</td>
+              <td style="font-weight:700;">$18,345</td>
+              <td><span class="yield-pill high">7.80%</span></td>
+              <td><span class="change-val up">▲ +0.12%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="asset-cell">
+                  <div class="asset-icon" style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);">🏠</div>
+                  <div>
+                    <div class="asset-name">pRealEstate-01</div>
+                    <div class="asset-ticker">R2 Protocol · Tokenized RE</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-family:var(--font-mono);font-size:12px;">9,500 pRE</td>
+              <td style="font-weight:700;">$9,612</td>
+              <td><span class="yield-pill high">11.4%</span></td>
+              <td><span class="change-val up">▲ +0.33%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="asset-cell">
+                  <div class="asset-icon" style="background:rgba(0,255,179,0.1);border:1px solid rgba(0,255,179,0.25);">⚡</div>
+                  <div>
+                    <div class="asset-name">pAlpha RWA Vault</div>
+                    <div class="asset-ticker">Pharos Foundation · High Yield</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-family:var(--font-mono);font-size:12px;">8,000 USDC</td>
+              <td style="font-weight:700;">$8,147</td>
+              <td><span class="yield-pill high">16.0%</span></td>
+              <td><span class="change-val up">▲ +0.04%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="asset-cell">
+                  <div class="asset-icon" style="background:rgba(100,100,255,0.1);border:1px solid rgba(100,100,255,0.25);">🤖</div>
+                  <div>
+                    <div class="asset-name">NeuroVault nUSD</div>
+                    <div class="asset-ticker">NeuroVault · AI Yield Optimizer</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-family:var(--font-mono);font-size:12px;">5,200 nUSD</td>
+              <td style="font-weight:700;">$5,228</td>
+              <td><span class="yield-pill mid">10.3%</span></td>
+              <td><span class="change-val down">▼ −0.07%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Allocation Donut -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🎯 <span>Allocation</span></div>
+        </div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 180 180">
+            <!-- T-Bills 32% -->
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#1a2d45" stroke-width="22"/>
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#f5c842" stroke-width="22"
+              stroke-dasharray="130.7 277.5" stroke-dashoffset="0" transform="rotate(-90 90 90)"/>
+            <!-- Credit 22% -->
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#00c8ff" stroke-width="22"
+              stroke-dasharray="89.8 318.4" stroke-dashoffset="-130.7" transform="rotate(-90 90 90)"/>
+            <!-- RE 11% -->
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#ff6b35" stroke-width="22"
+              stroke-dasharray="44.9 363.3" stroke-dashoffset="-220.5" transform="rotate(-90 90 90)"/>
+            <!-- pAlpha 10% -->
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#00ffb3" stroke-width="22"
+              stroke-dasharray="40.8 367.4" stroke-dashoffset="-265.4" transform="rotate(-90 90 90)"/>
+            <!-- AI/Other 25% -->
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#3a5a7a" stroke-width="22"
+              stroke-dasharray="102.1 306.1" stroke-dashoffset="-306.2" transform="rotate(-90 90 90)"/>
+            <!-- Center -->
+            <text x="90" y="85" class="donut-center-text" fill="#e8f4ff" font-size="20" font-weight="800" font-family="Syne,sans-serif">68.4%</text>
+            <text x="90" y="103" class="donut-center-text" fill="#5a7a99" font-size="10" font-family="Space Mono,monospace">RWA BACKED</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:#f5c842;"></div>
+                <span class="legend-name">U.S. Treasuries</span>
+              </div>
+              <span class="legend-pct">32%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:#00c8ff;"></div>
+                <span class="legend-name">Structured Credit</span>
+              </div>
+              <span class="legend-pct">22%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:#ff6b35;"></div>
+                <span class="legend-name">Real Estate</span>
+              </div>
+              <span class="legend-pct">11%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:#00ffb3;"></div>
+                <span class="legend-name">pAlpha Vault</span>
+              </div>
+              <span class="legend-pct">10%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:#3a5a7a;"></div>
+                <span class="legend-name">AI Yield / Other</span>
+              </div>
+              <span class="legend-pct">25%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROS Staking -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">⚓ <span>PROS</span> Staking</div>
+          <div class="panel-action">Manage →</div>
+        </div>
+        <div class="staking-visual">
+          <div class="stake-info-row">
+            <div class="stake-item">
+              <span class="stake-key">Staked</span>
+              <span class="stake-val cyan">42,500</span>
+            </div>
+            <div class="stake-item" style="text-align:center;">
+              <span class="stake-key">Est. Annual</span>
+              <span class="stake-val green">+2,125</span>
+            </div>
+            <div class="stake-item" style="text-align:right;">
+              <span class="stake-key">APY</span>
+              <span class="stake-val gold">5.00%</span>
+            </div>
+          </div>
+          <div class="stake-info-row" style="flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;">
+              <span style="color:var(--muted);font-family:var(--font-mono);">REWARDS ACCRUED</span>
+              <span style="color:var(--accent2);font-family:var(--font-mono);">+184 PROS</span>
+            </div>
+            <div style="width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+              <div style="width:47%;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);font-family:var(--font-mono);">Next epoch in 3d 14h 22m</div>
+          </div>
+          <button class="stake-btn">Claim & Restake</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- Recent Activity -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🔔 <span>Recent</span> Activity</div>
+        <div class="panel-action">All txns →</div>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(0,255,179,0.1);border:1px solid rgba(0,255,179,0.2);">💰</div>
+          <div class="activity-body">
+            <div class="activity-desc">Yield claimed from <strong>pAlpha Vault</strong> — +$48.20 USDC</div>
+            <div class="activity-time">2m ago · Block #1,284,771</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.2);">🔀</div>
+          <div class="activity-body">
+            <div class="activity-desc">Swapped 1,000 USDC → <strong>JTRSY</strong> via FaroSwap</div>
+            <div class="activity-time">1h 12m ago · Block #1,282,301</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.2);">⚓</div>
+          <div class="activity-body">
+            <div class="activity-desc">Staked <strong>5,000 PROS</strong> tokens — epoch #7 active</div>
+            <div class="activity-time">6h ago · Block #1,271,088</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);">🏠</div>
+          <div class="activity-body">
+            <div class="activity-desc">Deposited $5,000 into <strong>pRealEstate-01</strong> pool</div>
+            <div class="activity-time">1d ago · Block #1,238,440</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.15);">✅</div>
+          <div class="activity-body">
+            <div class="activity-desc">KYC verification approved via <strong>OpenFi</strong></div>
+            <div class="activity-time">3d ago · Mainnet launch day</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPN Network Health -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🔧 <span>SPN</span> Network Health</div>
+        <div class="panel-action">Details →</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-box">
+          <div class="metric-label">Finality</div>
+          <div class="metric-val accent">0.82s</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Active Validators</div>
+          <div class="metric-val green">284</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Peak TPS Today</div>
+          <div class="metric-val">38,914</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Uptime</div>
+          <div class="metric-val green">99.97%</div>
+        </div>
+      </div>
+      <div class="spn-list">
+        <div class="spn-item">
+          <div class="spn-left">
+            <span class="spn-name">RWA Settlement SPN</span>
+            <span class="spn-type">TEE + Compliance Layer</span>
+          </div>
+          <div class="spn-bar-wrap">
+            <span class="spn-pct">97%</span>
+            <div class="spn-bar"><div class="spn-fill" style="width:97%;"></div></div>
+          </div>
+        </div>
+        <div class="spn-item">
+          <div class="spn-left">
+            <span class="spn-name">Privacy zkML SPN</span>
+            <span class="spn-type">Zero-Knowledge ML Compute</span>
+          </div>
+          <div class="spn-bar-wrap">
+            <span class="spn-pct">91%</span>
+            <div class="spn-bar"><div class="spn-fill" style="width:91%;background:linear-gradient(90deg,var(--gold),var(--accent));"></div></div>
+          </div>
+        </div>
+        <div class="spn-item">
+          <div class="spn-left">
+            <span class="spn-name">Cross-Chain Relay SPN</span>
+            <span class="spn-type">Chainlink CCIP Bridge</span>
+          </div>
+          <div class="spn-bar-wrap">
+            <span class="spn-pct">99%</span>
+            <div class="spn-bar"><div class="spn-fill" style="width:99%;"></div></div>
+          </div>
+        </div>
+        <div class="spn-item">
+          <div class="spn-left">
+            <span class="spn-name">DePIN Compute SPN</span>
+            <span class="spn-type">GPU-Accelerated DA Layer</span>
+          </div>
+          <div class="spn-bar-wrap">
+            <span class="spn-pct">84%</span>
+            <div class="spn-bar"><div class="spn-fill" style="width:84%;background:linear-gradient(90deg,var(--accent3),var(--gold));"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yield Opportunities -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">💎 <span>Yield</span> Opportunities</div>
+        <div class="panel-action">All markets →</div>
+      </div>
+      <div class="opportunity-list">
+        <div class="opp-card">
+          <div class="opp-emoji">⚡</div>
+          <div class="opp-body">
+            <div class="opp-name">pAlpha High Yield Vault</div>
+            <div class="opp-protocol">Pharos Foundation · USDC</div>
+          </div>
+          <div class="opp-apy">16.0%<small>APY</small></div>
+        </div>
+        <div class="opp-card">
+          <div class="opp-emoji">🏠</div>
+          <div class="opp-body">
+            <div class="opp-name">Tokenized Real Estate Pool</div>
+            <div class="opp-protocol">R2 Protocol · pRE token</div>
+          </div>
+          <div class="opp-apy">11.4%<small>APY</small></div>
+        </div>
+        <div class="opp-card">
+          <div class="opp-emoji">🤖</div>
+          <div class="opp-body">
+            <div class="opp-name">NeuroVault AI Yield Optimizer</div>
+            <div class="opp-protocol">NeuroVault · nUSD auto-compound</div>
+          </div>
+          <div class="opp-apy">10.3%<small>APY</small></div>
+        </div>
+        <div class="opp-card">
+          <div class="opp-emoji">📄</div>
+          <div class="opp-body">
+            <div class="opp-name">JAAA AAA Structured Credit</div>
+            <div class="opp-protocol">Centrifuge · On Pharos</div>
+          </div>
+          <div class="opp-apy">7.8%<small>APY</small></div>
+        </div>
+        <div class="opp-card">
+          <div class="opp-emoji">🏛️</div>
+          <div class="opp-body">
+            <div class="opp-name">JTRSY U.S. Treasuries</div>
+            <div class="opp-protocol">Centrifuge · Tokenized T-Bills</div>
+          </div>
+          <div class="opp-apy">5.1%<small>APY</small></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ── DRAW CHART ──
+function drawChart() {
+  const portfolioData = [72100, 73400, 71800, 74200, 75900, 74600, 77300, 76800, 79100, 80200, 78900, 81500, 82300, 80900, 83100, 82700, 84392];
+  const yieldData =    [71000, 71400, 71200, 71700, 72100, 72300, 72800, 73100, 73500, 73900, 74100, 74600, 75200, 75500, 76100, 76400, 77000];
+
+  const svgW = 700, svgH = 200, pad = 10;
+  const allVals = [...portfolioData, ...yieldData];
+  const minVal = Math.min(...allVals) - 1000;
+  const maxVal = Math.max(...allVals) + 500;
+
+  const xScale = (i) => pad + (i / (portfolioData.length - 1)) * (svgW - pad * 2);
+  const yScale = (v) => svgH - pad - ((v - minVal) / (maxVal - minVal)) * (svgH - pad * 2);
+
+  const buildPath = (data) => data.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xScale(i).toFixed(1)} ${yScale(v).toFixed(1)}`).join(' ');
+
+  const linePath = buildPath(portfolioData);
+  const yieldPath = buildPath(yieldData);
+
+  const areaClose = ` L ${xScale(portfolioData.length-1).toFixed(1)} ${svgH} L ${pad} ${svgH} Z`;
+  const yAreaClose = ` L ${xScale(yieldData.length-1).toFixed(1)} ${svgH} L ${pad} ${svgH} Z`;
+
+  document.getElementById('linePath').setAttribute('d', linePath);
+  document.getElementById('areaPath').setAttribute('d', linePath + areaClose);
+  document.getElementById('yieldPath').setAttribute('d', yieldPath);
+  document.getElementById('yieldArea').setAttribute('d', yieldPath + yAreaClose);
+}
+
+drawChart();
+
+// ── TAB SWITCHING ──
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+
+// ── WALLET ADDRESS CLICK ──
+document.querySelector('.wallet-addr').addEventListener('click', function() {
+  this.textContent = '✓ Copied!';
+  setTimeout(() => { this.textContent = '0x3a9F…d84C'; }, 1500);
+});
+</script>
+</body>
+</html>
